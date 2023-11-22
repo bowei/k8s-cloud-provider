@@ -43,6 +43,8 @@ func TestRgraphL4LBBasic(t *testing.T) {
 
 	frMutResource := forwardingrule.NewMutableForwardingRule(testFlags.project, frID.Key)
 	err := frMutResource.Access(func(x *compute.ForwardingRule) {
+		x.IPProtocol = "TCP"
+
 		y := compute.ForwardingRule{
 			IPProtocol:          "TCP",
 			AllPorts:            false,
@@ -95,10 +97,13 @@ func TestRgraphL4LBBasic(t *testing.T) {
 	graphBuilder.Add(frBuilder)
 
 	bsMutResource := backendservice.NewMutableBackendService(testFlags.project, bsID.Key)
-	bsMutResource.Access(func(x *compute.BackendService) {
+	err = bsMutResource.Access(func(x *compute.BackendService) {
 		x.LoadBalancingScheme = "EXTERNAL"
 		x.Protocol = "TCP"
 	})
+	if err != nil {
+		// t.Fatal(err)
+	}
 	bsResource, err := bsMutResource.Freeze()
 	if err != nil {
 		t.Fatal(err)
